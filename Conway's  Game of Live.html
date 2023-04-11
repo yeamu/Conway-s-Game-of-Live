@@ -1,0 +1,156 @@
+<style>
+    input[type='number'] {
+        width: 60px;
+    }
+    #width-input,#height-input {
+        width: 40px;
+    }
+</style>
+<pre id="conwayWorld"></pre>
+<button onclick="next()">next</button>
+<button onclick="autoPlay()">自动演化</button>
+<button onclick="stopPlay()">停止演化</button>
+<button onclick="rnadomFill()">随机填充</button>
+<input type="number" oninput="stop();autoPlay(this.value)" value="500" step="50">ms
+width <input type="text" id="width-input">
+height <input type="text" id="height-input">
+<button onclick="go()">Go</button>
+<script>
+    let width = 30
+    let height = 30
+    let border = true
+    let world = new Array(height).fill(0).map(it => new Array(width).fill(0))
+
+    
+    function evolution(world) {
+        let worldLength = world.length
+        //稀疏数组 map不映射
+        let newWorld = new Array(world.length).fill(0).map(it => new Array(world[0].length).fill(0) )
+
+        //compute '九宫格' cell number
+        for(let row = 0; row < world.length; row++) {
+            for (let col = 0; col < world[row].length; col++) { 
+                let neighbors = 0
+                for(let r = row - 1; r <= row + 1; r++) {
+                    for (let c = col - 1; c <= col + 1; c++) {
+                        
+                        //计算邻居数量
+                        let x = c
+                        let y = r
+                        if(border) {
+                            if(y >= world.length) {
+                            y -= world.length
+                            }
+                            if(y < 0) {
+                                y += world.length 
+                            }
+                            if(x >= world[0].length) {
+                                x -= world[0].length
+                            }
+                            if(x < 0) {
+                                x += world[0].length
+                            }
+                        }
+
+                        neighbors += world?.[y]?.[x] ?? 0
+                    }
+                }
+                let cell = world[row][col]
+                neighbors -= cell
+                if(cell) {
+                    if(neighbors < 2 || neighbors > 3) {
+                        newWorld[row][col] = 0
+                    } else {
+                        newWorld[row][col] = 1
+                    }
+                } else {
+                    if(neighbors === 3) {
+                        newWorld[row][col] = 1 
+                    }
+                }
+            }
+        }
+
+        return newWorld
+    }
+
+
+    let conwayWorld = document.querySelector('#conwayWorld')
+    let btn = document.querySelector('button')
+
+
+    function go() {
+        
+        showWorld(world) {
+
+        }
+    }
+
+    //默认上屏
+    function showWorld() {
+        conwayWorld.innerHTML = worldToHTML(world)
+    }
+    showWorld()
+    
+    //交互
+    conwayWorld.addEventListener('click',function(e) {
+        if (e.target.matches('input')) {
+            let row = e.target.dataset.row
+            let col = e.target.dataset.col
+            world[row][col] = Number(e.target.checked)
+        }
+    })
+
+    function next() {
+         world = evolution(world)
+        conwayWorld.innerHTML = worldToHTML(world)
+    }
+
+    let auto
+    function autoPlay(time = 500) {
+        auto = setInterval(() => {
+            next()
+        },time)
+    }
+
+    function stopPlay() {
+        clearInterval(auto)
+    }
+
+    function rnadomFill() {
+        world.forEach(row => {
+            row.forEach((cell,i) => {
+                if(Math.random() < 0.05) row[i] = 1
+            })
+        })
+        showWorld()
+    }
+
+
+    //限制input只能输入数字
+    const widthInput = document.querySelector('#width-input')
+    const heightInput = document.querySelector('#height-input')
+    
+    widthInput.addEventListener('input', (e) => {
+        const value = event.target.value;
+        const newValue = value.replace(/[^\d]/g, ''); // 仅保留数字
+        event.target.value = newValue;
+    })
+
+    heightInput.addEventListener('input', (e) => {
+        const value = event.target.value;
+        const newValue = value.replace(/[^\d]/g, ''); // 仅保留数字
+        event.target.value = newValue;
+    })
+
+
+
+    function worldToHTML(world) {
+        return world.map((row,rowIdx) => {
+            return row.map((cell,colIdx) => cell ? `<input type="checkbox" data-row="${rowIdx}" data-col="${colIdx}" checked>` : `<input type="checkbox"  data-row="${rowIdx}" data-col="${colIdx}" >`).join('')
+        }).join('\n')
+    }
+    
+
+    
+</script>
