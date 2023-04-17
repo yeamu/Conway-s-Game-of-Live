@@ -8,10 +8,12 @@
 </style>
 <pre id="conwayWorld"></pre>
 <button onclick="next()">next</button>
+<button onclick="rnadomFill()">随机填充</button>
 <button onclick="autoPlay()">自动演化</button>
 <button onclick="stopPlay()">停止演化</button>
-<button onclick="rnadomFill()">随机填充</button>
+
 <input type="number" oninput="stop();autoPlay(this.value)" value="500" step="50">ms
+
 width <input type="text" id="width-input">
 height <input type="text" id="height-input">
 <button onclick="go()">Go</button>
@@ -79,11 +81,10 @@ height <input type="text" id="height-input">
     let btn = document.querySelector('button')
 
 
-    function go() {
-        
-        showWorld(world) {
 
-        }
+    function initWorld(width,height) {
+        let world = new Array(height).fill(0).map(it => new Array(width).fill(0))
+        worldToHTML(world)
     }
 
     //默认上屏
@@ -106,15 +107,16 @@ height <input type="text" id="height-input">
         conwayWorld.innerHTML = worldToHTML(world)
     }
 
-    let auto
-    function autoPlay(time = 500) {
-        auto = setInterval(() => {
+    let autoPlayId
+    function autoPlay() {
+        autoPlayId = setInterval(() => {
             next()
-        },time)
+            console.log(time)
+        }, 500);
     }
 
     function stopPlay() {
-        clearInterval(auto)
+        clearInterval(autoPlayId)
     }
 
     function rnadomFill() {
